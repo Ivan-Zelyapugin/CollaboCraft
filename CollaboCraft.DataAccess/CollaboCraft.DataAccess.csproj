@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\Resources\001_Create_users.sql" />
+    <EmbeddedResource Include="Migrations\Resources\002_Create_contacts.sql" />
+    <EmbeddedResource Include="Migrations\Resources\003_Create_documents.sql" />
+    <EmbeddedResource Include="Migrations\Resources\004_Create_document_participants.sql" />
+    <EmbeddedResource Include="Migrations\Resources\005_Crete_blocks.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="dbup-postgresql" Version="6.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Repositories\Scripts\Sql.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Sql.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+
+		<Compile Update="Repositories\Scripts\Sql.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Sql.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\CollaboCraft.Models\CollaboCraft.Models.csproj" />
+  </ItemGroup>
+
+</Project>
