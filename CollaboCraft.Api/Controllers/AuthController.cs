@@ -1,9 +1,8 @@
-﻿using CollaboCraft.Models.Auth;
-using CollaboCraft.Services;
+﻿using CollaboCraft.Common;
+using CollaboCraft.Models.Auth;
 using CollaboCraft.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace CollaboCraft.Api.Controllers
 {
@@ -33,8 +32,9 @@ namespace CollaboCraft.Api.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-            await authService.Logout(userId);
+            string AuthHeader = HttpContext.Request.Headers.Authorization.ToString();
+            int Id = int.Parse(Jwt.GetId(AuthHeader));
+            await authService.Logout(Id);
             return Ok(new { Message = "Logged out successfully" });
         }
     }

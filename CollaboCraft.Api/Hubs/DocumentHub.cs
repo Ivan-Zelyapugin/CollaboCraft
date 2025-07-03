@@ -5,13 +5,20 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace CollaboCraft.Api.Hubs
 {
-    public class DocumentHub(IConnectionTracker connectionTracker, IDocumentService documentService, IBlockService messageService, IDocumentParticipantService documentParticipantService) : BaseHub
+    public class DocumentHub
+        (IConnectionTracker connectionTracker, 
+        IDocumentService documentService, 
+        IBlockService messageService, 
+        IDocumentParticipantService documentParticipantService,
+        IUserService userService
+        ) : BaseHub
     {
         public async Task CreateDocument(CreateDocumentRequest request)
         {
             try
             {
                 request.CreatorId = Id;
+                request.UserIds = await ResolveUserIdsAsync(request.Usernames);
                 var document = await documentService.CreateDocument(request);
 
                 var connectionIds = connectionTracker.SelectConnectionIds(request.UserIds).Append(Context.ConnectionId);
@@ -74,6 +81,7 @@ namespace CollaboCraft.Api.Hubs
             try
             {
                 request.RequestingUserId = Id;
+                request.UserIds = await ResolveUserIdsAsync(request.Usernames);
                 await documentService.AddUsersToDocument(request);
 
                 var connectionIds = connectionTracker.SelectConnectionIds(request.UserIds);
@@ -103,5 +111,17 @@ namespace CollaboCraft.Api.Hubs
 
             await base.OnDisconnectedAsync(exception);
         }
+
+        private async Task<List<int>> ResolveUserIdsAsync(List<string> usernames)
+        {
+            var allUsers = await userService.GetUsers();
+            var userIds = allUsers
+                .Where(u => usernames.Contains(u.Username, StringComparer.OrdinalIgnoreCase))
+                .Select(u => u.Id)
+                .ToList();
+
+            return userIds;
+        }
+
     }
 }
