@@ -20,14 +20,20 @@ builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddJwtAuth(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", builder =>
+    {
+        builder.WithOrigins("http://localhost:3000")
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
-app.UseCors(cors =>
-{
-    cors.AllowAnyHeader();
-    cors.AllowAnyMethod();
-    cors.AllowAnyOrigin();
-});
+app.UseCors("AllowSpecificOrigin");
 
 app.UseSwagger();
 app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/CollaboCraft/swagger.json", "CollaboCraft API v1"));

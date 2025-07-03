@@ -136,6 +136,9 @@
   <data name="CreteDocument" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Document\CreteDocument.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="DeleteDocument" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Document\DeleteDocument.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="DeleteUser" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>User\DeleteUser.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

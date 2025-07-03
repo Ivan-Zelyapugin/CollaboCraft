@@ -20,6 +20,11 @@ namespace CollaboCraft.DataAccess.Repositories
             return await dapperContext.CommandWithResponse<int>(new QueryObject(Sql.CreteDocument, document), transaction);
         }
 
+        public async Task DeleteDocument(int id, ITransaction transaction = null)
+        {
+            await dapperContext.Command(new QueryObject(Sql.DeleteDocument, new { id }), transaction);
+        }
+
         public async Task<bool> IsDocumentExists(int id)
         {
             return await dapperContext.FirstOrDefault<bool>(new QueryObject(Sql.IsDocumentExists, new { id }));

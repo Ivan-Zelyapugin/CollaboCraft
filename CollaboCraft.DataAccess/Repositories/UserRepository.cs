@@ -53,7 +53,7 @@ namespace CollaboCraft.DataAccess.Repositories
             return await dapperContext.ListOrEmpty<DbUser>(new QueryObject(Sql.GetUsers));
         }
 
-        public async Task UpdateRefreshToken(int id, string refreshToken, DateTime refreshTokenExpiredAfter)
+        public async Task UpdateRefreshToken(int id, string? refreshToken, DateTime? refreshTokenExpiredAfter)
         {
             await dapperContext.Command(new QueryObject(Sql.UpdateRefreshToken, new { id, refreshToken, refreshTokenExpiredAfter }));
         }

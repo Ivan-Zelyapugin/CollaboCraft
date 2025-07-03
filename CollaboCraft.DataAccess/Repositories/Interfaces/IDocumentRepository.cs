@@ -8,6 +8,7 @@ namespace CollaboCraft.DataAccess.Repositories.Interfaces
     {
         ITransaction BeginTransaction();
         Task<int> CreateDocument(DbDocument document, ITransaction transaction = null);
+        Task DeleteDocument(int id, ITransaction transaction = null);
         Task<bool> IsDocumentExists(int id);
         Task<List<DbDocument>> GetDocumentsByUserId(int userId);
         Task<DocumentDetails> GetDocumentDetails(int id);

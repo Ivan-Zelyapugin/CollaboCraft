@@ -1,7 +1,7 @@
 ﻿select id        as Id,
        text      as Text,
        sent_on   as SentOn,
-       block_id   as BlockId,
+       document_id   as DocumentId,
        user_id   as UserId,
        edited_on as EditedOn
 from blocks

@@ -66,5 +66,16 @@ namespace CollaboCraft.Services
                 RefreshToken = user.RefreshToken
             };
         }
+
+        public async Task Logout(int userId)
+        {
+            if (!await userRepository.IsUserExistsById(userId))
+            {
+                throw new UserNotFoundException(userId);
+            }
+
+            // Инвалидируем refresh token
+            await userRepository.UpdateRefreshToken(userId, null, null);
+        }
     }
 }

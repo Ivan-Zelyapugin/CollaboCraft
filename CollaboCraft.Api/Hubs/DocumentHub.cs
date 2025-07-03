@@ -26,6 +26,21 @@ namespace CollaboCraft.Api.Hubs
             }
         }
 
+        public async Task DeleteDocument(int documentId)
+        {
+            try
+            {
+                await documentService.DeleteDocument(documentId, Id);
+                await Clients.Group($"Document{documentId}").SendAsync("DocumentDeleted", documentId);
+
+                var connectionIds = connectionTracker.SelectConnectionIds(new List<int> { Id });
+                await Task.WhenAll(connectionIds.Select(connectionId => Groups.RemoveFromGroupAsync(connectionId, $"Document{documentId}")));
+            }
+            catch (Exception e)
+            {
+                throw new HubException(e.Message);
+            }
+        }
         public async Task SendBlock(SendBlockRequest request)
         {
             try

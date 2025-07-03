@@ -47,6 +47,32 @@ namespace CollaboCraft.Services
             }
         }
 
+        public async Task DeleteDocument(int documentId, int requestingUserId)
+        {
+            if (!await documentRepository.IsDocumentExists(documentId))
+            {
+                throw new DocumentNotFoundException(documentId);
+            }
+
+            var participant = await documentParticipantRepository.IsDocumentParticipantExists(requestingUserId, documentId);
+            if (!participant)
+            {
+                throw new DocumentParticipantNotFoundException(requestingUserId, documentId);
+            }
+
+            using var transaction = documentRepository.BeginTransaction();
+            try
+            {
+                await documentRepository.DeleteDocument(documentId, transaction);
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
         public async Task<List<Document>> GetDocumentsByUserId(int userId)
         {
             var dbDocuments = await documentRepository.GetDocumentsByUserId(userId);

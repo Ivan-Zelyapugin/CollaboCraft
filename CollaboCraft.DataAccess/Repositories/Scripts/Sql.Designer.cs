@@ -72,8 +72,8 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на insert into blocks (text, sent_on, block_id, user_id)
-        ///values (@Text, @SentOn, @BlockId, @UserId)
+        ///   Ищет локализованную строку, похожую на insert into blocks (text, sent_on, document_id, user_id)
+        ///values (@Text, @SentOn, @DocumentId, @UserId)
         ///returning id;.
         /// </summary>
         internal static string CreateBlock {
@@ -93,7 +93,7 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на insert into document_participants (user_id, chat_id, role)
+        ///   Ищет локализованную строку, похожую на insert into document_participants (user_id, document_id, role)
         ///values (@UserId, @DocumentId, @Role);.
         /// </summary>
         internal static string CreateDocumentParticipant {
@@ -125,6 +125,17 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на DELETE FROM document_participants WHERE document_id = @id;
+        ///DELETE FROM blocks WHERE document_id = @id;
+        ///DELETE FROM documents WHERE id = @id;.
+        /// </summary>
+        internal static string DeleteDocument {
+            get {
+                return ResourceManager.GetString("DeleteDocument", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на delete
         ///from users
         ///where id = @id;.
@@ -151,11 +162,11 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         ///   Ищет локализованную строку, похожую на select id        as Id,
         ///       text      as Text,
         ///       sent_on   as SentOn,
-        ///       block_id   as BlockId,
+        ///       document_id   as DocumentId,
         ///       user_id   as UserId,
         ///       edited_on as EditedOn
         ///from blocks
-        ///where block_id = @blockId
+        ///where document_id = @documentId
         ///  and sent_on &gt;= @from
         ///order by sent_on;.
         /// </summary>
@@ -169,7 +180,7 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         ///   Ищет локализованную строку, похожую на select id        as Id,
         ///       text      as Text,
         ///       sent_on   as SentOn,
-        ///       block_id   as BlockId,
+        ///       document_id   as DocumentId,
         ///       user_id   as UserId,
         ///       edited_on as EditedOn
         ///from blocks

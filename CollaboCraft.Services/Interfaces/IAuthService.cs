@@ -6,5 +6,6 @@ namespace CollaboCraft.Services.Interfaces
     {
         Task<AuthResponse> Register(RegisterModel registerModel);
         Task<AuthResponse> Login(LoginModel loginModel);
+        Task Logout(int userId);
     }
 }
