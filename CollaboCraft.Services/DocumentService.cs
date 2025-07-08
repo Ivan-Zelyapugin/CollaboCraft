@@ -8,7 +8,11 @@ using CollaboCraft.Services.Mapper;
 
 namespace CollaboCraft.Services
 {
-    public class DocumentService(IDocumentRepository documentRepository, IUserRepository userRepository, IDocumentParticipantRepository documentParticipantRepository) : IDocumentService
+    public class DocumentService(
+        IDocumentRepository documentRepository, 
+        IUserRepository userRepository, 
+        IDocumentParticipantRepository documentParticipantRepository
+        ) : IDocumentService
     {
         public async Task<Document> CreateDocument(CreateDocumentRequest request)
         {
@@ -21,23 +25,41 @@ namespace CollaboCraft.Services
                 }
             }
 
-            // создаем чат и добавляем в него пользователей
             using var transaction = documentRepository.BeginTransaction();
             try
             {
                 var dbDocument = request.MapToDb();
                 var documentId = await documentRepository.CreateDocument(request.MapToDb(), transaction);
-                var documentParticipants = request.UserIds.Select(id => new DbDocumentParticipant
+
+
+                var documentParticipants = new List<DbDocumentParticipant>();
+
+                for (int i = 0; i < request.UserIds.Count; i++)
                 {
-                    UserId = id,
-                    DocumentId = documentId,
-                    Role = (int)(id == request.CreatorId ? DocumentRole.Creator : DocumentRole.User)
-                }).ToList();
+                    var userId = request.UserIds[i];
+                    var roleStr = request.Roles != null && i < request.Roles.Count ? request.Roles[i] : "User";
+
+                    var parsed = Enum.TryParse<DocumentRole>(roleStr, true, out var role);
+                    var roleEnum = parsed ? role : DocumentRole.User;
+
+                    if (userId == request.CreatorId)
+                        roleEnum = DocumentRole.Creator;
+
+                    documentParticipants.Add(new DbDocumentParticipant
+                    {
+                        UserId = userId,
+                        DocumentId = documentId,
+                        Role = (int)roleEnum
+                    });
+                }
+
+
+
+
                 await documentParticipantRepository.CreateDocumentParticipants(documentParticipants, transaction);
-
                 transaction.Commit();
-                dbDocument.Id = documentId;
 
+                dbDocument.Id = documentId;
                 return dbDocument.MapToDomain();
             }
             catch (Exception)
@@ -60,6 +82,15 @@ namespace CollaboCraft.Services
                 throw new DocumentParticipantNotFoundException(requestingUserId, documentId);
             }
 
+            var roleInt = await documentParticipantRepository.GetUserRoleInDocument(requestingUserId, documentId);
+            if (roleInt is null)
+                throw new DocumentParticipantNotFoundException(requestingUserId, documentId);
+
+            var role = (DocumentRole)roleInt;
+            if (role != DocumentRole.Creator)
+                throw new PermissionDeniedException("Удаление документа разрешено только его создателю.");
+
+
             using var transaction = documentRepository.BeginTransaction();
             try
             {
@@ -73,11 +104,27 @@ namespace CollaboCraft.Services
             }
         }
 
-        public async Task<List<Document>> GetDocumentsByUserId(int userId)
+        public async Task<List<UserDocumentDto>> GetDocumentsByUserId(int userId)
         {
             var dbDocuments = await documentRepository.GetDocumentsByUserId(userId);
+            var result = new List<UserDocumentDto>();
 
-            return dbDocuments.MapToDomain();
+
+            foreach (var dbDoc in dbDocuments)
+            {
+                var roleInt = await documentParticipantRepository.GetUserRoleInDocument(userId, dbDoc.Id);
+                if (roleInt == null)
+                    continue;
+
+                var role = (DocumentRole)roleInt;
+                result.Add(new UserDocumentDto
+                {
+                    Document = dbDoc.MapToDomain(),
+                    Role = role
+                });
+            }
+
+            return result;
         }
 
         public async Task<DocumentDetails> GetDocumentDetails(int id)
@@ -95,35 +142,35 @@ namespace CollaboCraft.Services
         public async Task AddUsersToDocument(AddUsersToDocumentRequest request)
         {
             if (!await documentRepository.IsDocumentExists(request.DocumentId))
-            {
                 throw new DocumentNotFoundException(request.DocumentId);
-            }
 
             if (!await documentParticipantRepository.IsDocumentParticipantExists(request.RequestingUserId, request.DocumentId))
-            {
                 throw new DocumentParticipantNotFoundException(request.RequestingUserId, request.DocumentId);
+
+            var participants = new List<DbDocumentParticipant>();
+
+            for (int i = 0; i < request.UserIds.Count; i++)
+            {
+                var userId = request.UserIds[i];
+                if (!await userRepository.IsUserExistsById(userId))
+                    throw new UserNotFoundException(userId);
+
+                if (await documentParticipantRepository.IsDocumentParticipantExists(userId, request.DocumentId))
+                    throw new UserAlreadyInDocumentException(userId, request.DocumentId);
+
+                string roleStr = request.Roles != null && i < request.Roles.Count ? request.Roles[i] : "User";
+                var parsed = Enum.TryParse<DocumentRole>(roleStr, true, out var role);
+                var roleEnum = parsed ? role : DocumentRole.User;
+
+                participants.Add(new DbDocumentParticipant
+                {
+                    DocumentId = request.DocumentId,
+                    UserId = userId,
+                    Role = (int)roleEnum
+                });
             }
 
-            foreach (var id in request.UserIds)
-            {
-                if (!await userRepository.IsUserExistsById(id))
-                {
-                    throw new UserNotFoundException(id);
-                }
-
-                if (await documentParticipantRepository.IsDocumentParticipantExists(id, request.DocumentId))
-                {
-                    throw new UserAlreadyInDocumentException(id, request.DocumentId);
-                }
-            }
-
-            var documentParticipants = request.UserIds.Select(id => new DbDocumentParticipant
-            {
-                UserId = id,
-                DocumentId = request.DocumentId,
-                Role = (int)DocumentRole.User
-            }).ToList();
-            await documentParticipantRepository.CreateDocumentParticipants(documentParticipants);
+            await documentParticipantRepository.CreateDocumentParticipants(participants);
         }
     }
 }

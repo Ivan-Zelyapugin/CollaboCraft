@@ -351,6 +351,18 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на SELECT role
+        ///FROM document_participants
+        ///WHERE user_id = @userId AND document_id = @documentId;
+        ///.
+        /// </summary>
+        internal static string GetUserRoleInDocument {
+            get {
+                return ResourceManager.GetString("GetUserRoleInDocument", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на select id                          as Id,
         ///       role                        as Role,
         ///       username                    as Username,

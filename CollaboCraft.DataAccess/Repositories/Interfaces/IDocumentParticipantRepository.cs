@@ -10,5 +10,6 @@ namespace CollaboCraft.DataAccess.Repositories.Interfaces
         Task CreateDocumentParticipants(List<DbDocumentParticipant> DocumentParticipants, ITransaction transaction = null);
         Task<bool> IsDocumentParticipantExists(int userId, int DocumentId);
         Task<List<DbDocumentParticipant>> GetDocumentParticipantsByUserId(int userId);
+        Task<int?> GetUserRoleInDocument(int userId, int documentId);
     }
 }

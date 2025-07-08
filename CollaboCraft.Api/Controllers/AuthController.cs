@@ -19,6 +19,7 @@ namespace CollaboCraft.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel loginModel)
         {
+            Console.WriteLine("aaaaaaa");
             return Ok(await authService.Login(loginModel));
         }
 

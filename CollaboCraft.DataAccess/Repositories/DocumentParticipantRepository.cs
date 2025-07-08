@@ -33,5 +33,12 @@ namespace CollaboCraft.DataAccess.Repositories
         {
             return await dapperContext.ListOrEmpty<DbDocumentParticipant>(new QueryObject(Sql.GetDocumentParticipantsByUserId, new { userId }));
         }
+
+        public async Task<int?> GetUserRoleInDocument(int userId, int documentId)
+        {
+            return await dapperContext.FirstOrDefault<int?>(
+                new QueryObject(Sql.GetUserRoleInDocument, new { userId, documentId })
+            );
+        }
     }
 }

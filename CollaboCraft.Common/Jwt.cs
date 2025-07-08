@@ -22,7 +22,7 @@ namespace CollaboCraft.Common
 
         public static string GetUsername(string token)
         {
-            return ParseToken(token, "username");
+            return ParseToken(token, "login");
         }
 
         public static List<Claim> GetClaims(int id, int role, string email, string username)

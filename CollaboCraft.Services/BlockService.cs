@@ -1,13 +1,29 @@
 ﻿using CollaboCraft.DataAccess.Repositories.Interfaces;
 using CollaboCraft.Models.Block;
+using CollaboCraft.Models.Permission;
 using CollaboCraft.Services.Exceptions;
 using CollaboCraft.Services.Interfaces;
 using CollaboCraft.Services.Mapper;
 
 namespace CollaboCraft.Services
 {
-    public class BlockService(IBlockRepository messageRepository, IDocumentRepository documentRepository, IDocumentParticipantRepository documentParticipantRepository) : IBlockService
+    public class BlockService(
+        IBlockRepository messageRepository, 
+        IDocumentRepository documentRepository, 
+        IDocumentParticipantRepository documentParticipantRepository
+        ) : IBlockService
     {
+        private async Task ValidateWriteAccess(int documentId, int userId)
+        {
+            var roleInt = await documentParticipantRepository.GetUserRoleInDocument(userId, documentId);
+            if (roleInt is null)
+                throw new DocumentParticipantNotFoundException(userId, documentId);
+
+            var role = (DocumentRole)roleInt;
+            if (role != DocumentRole.Creator && role != DocumentRole.Editor)
+                throw new PermissionDeniedException("Недостаточно прав для редактирования документа");
+        }
+
         public async Task<Block> SendBlock(SendBlockRequest request)
         {
             if (!await documentRepository.IsDocumentExists(request.DocumentId))
@@ -19,6 +35,8 @@ namespace CollaboCraft.Services
             {
                 throw new DocumentParticipantNotFoundException(request.UserId, request.DocumentId);
             }
+
+            await ValidateWriteAccess(request.DocumentId, request.UserId);
 
             request.SentOn = DateTime.UtcNow;
             var dbBlock = request.MapToDb();
@@ -55,7 +73,7 @@ namespace CollaboCraft.Services
 
             if (message.UserId != request.UserId)
             {
-                throw new EditBlockException();
+                await ValidateWriteAccess(message.DocumentId, request.UserId);
             }
 
             request.EditedOn = DateTime.UtcNow;

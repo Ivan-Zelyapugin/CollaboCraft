@@ -7,6 +7,6 @@ namespace CollaboCraft.Models.User
         public string OldPassword { get; set; }
         public string NewPassword { get; set; }
         [JsonIgnore]
-        public string Login { get; set; }
+        public string? Login { get; set; }
     }
 }

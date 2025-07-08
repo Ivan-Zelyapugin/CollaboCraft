@@ -18,6 +18,26 @@ namespace CollaboCraft.Api.Hubs
             try
             {
                 request.CreatorId = Id;
+                var allUsers = await userService.GetUsers();
+
+                var foundUsers = allUsers
+            .Where(u => request.Usernames.Contains(u.Username, StringComparer.OrdinalIgnoreCase))
+            .ToList();
+
+                var foundUsernames = foundUsers
+                    .Select(u => u.Username)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                var notFound = request.Usernames
+                    .Where(u => !foundUsernames.Contains(u))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (notFound.Any())
+                {
+                    throw new HubException($"Пользователи не найдены: {string.Join(", ", notFound)}");
+                }
+
                 request.UserIds = await ResolveUserIdsAsync(request.Usernames);
                 var document = await documentService.CreateDocument(request);
 
@@ -81,11 +101,39 @@ namespace CollaboCraft.Api.Hubs
             try
             {
                 request.RequestingUserId = Id;
+
+                var allUsers = await userService.GetUsers();
+
+                var foundUsers = allUsers
+                    .Where(u => request.Usernames.Contains(u.Username, StringComparer.OrdinalIgnoreCase))
+                    .ToList();
+
+                var foundUsernames = foundUsers
+                    .Select(u => u.Username)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                var notFound = request.Usernames
+                    .Where(u => !foundUsernames.Contains(u))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
                 request.UserIds = await ResolveUserIdsAsync(request.Usernames);
+
+                if (!request.UserIds.Any())
+                {
+                    throw new HubException("No valid users found.");
+                }
+
+                if (!request.UserIds.Any())
+                {
+                    throw new HubException("No valid users found. Cannot add anyone to the document.");
+                }
+
                 await documentService.AddUsersToDocument(request);
 
                 var connectionIds = connectionTracker.SelectConnectionIds(request.UserIds);
                 await Task.WhenAll(connectionIds.Select(connectionId => Groups.AddToGroupAsync(connectionId, $"Document{request.DocumentId}")));
+
                 await Clients.Group($"Document{request.DocumentId}").SendAsync("AddedToDocument", request.UserIds);
             }
             catch (Exception e)

@@ -29,19 +29,21 @@ namespace CollaboCraft.Services
 
         public async Task UpdateUser(UpdateUserRequest request)
         {
-            if (!await userRepository.IsUserExistsById(request.Id))
-            {
+            var existingUser = await userRepository.GetUser(request.Id);
+
+            if (existingUser == null)
                 throw new UserNotFoundException(request.Id);
+
+            if (!string.IsNullOrEmpty(request.Username) && request.Username != existingUser.Username)
+            {
+                if (await userRepository.IsUserExistsByUsername(request.Username))
+                    throw new UsernameAlreadyTakenException(request.Username);
             }
 
-            if (!string.IsNullOrEmpty(request.Username) && await userRepository.IsUserExistsByUsername(request.Username))
+            if (!string.IsNullOrEmpty(request.Email) && request.Email != existingUser.Email)
             {
-                throw new UsernameAlreadyTakenException(request.Username);
-            }
-
-            if (!string.IsNullOrEmpty(request.Email) && await userRepository.IsUserExistsByEmail(request.Email))
-            {
-                throw new EmailAlreadyTakenException(request.Email);
+                if (await userRepository.IsUserExistsByEmail(request.Email))
+                    throw new EmailAlreadyTakenException(request.Email);
             }
 
             await userRepository.UpdateUser(request.MapToDb());
@@ -59,6 +61,7 @@ namespace CollaboCraft.Services
 
         public async Task ChangePassword(ChangePasswordRequest request)
         {
+            Console.WriteLine(request.Login);
             var user = await userRepository.GetUser(request.Login, Hash.GetHash(request.OldPassword));
 
             if (user == null)

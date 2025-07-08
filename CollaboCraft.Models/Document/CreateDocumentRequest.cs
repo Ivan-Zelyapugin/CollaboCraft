@@ -6,6 +6,7 @@ namespace CollaboCraft.Models.Document
     {
         public string Name { get; set; }
         public List<string> Usernames { get; set; }
+        public List<string> Roles { get; set; }
         [JsonIgnore]
         public List<int> UserIds { get; set; } // Id пользователей, которых нужно добавить в документ.
         [JsonIgnore]
