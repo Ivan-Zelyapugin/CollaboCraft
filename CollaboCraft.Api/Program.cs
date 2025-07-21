@@ -11,7 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithAuth();
 builder.Services.AddControllers();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10 ла
+});
 builder.Services.MigrateDatabase(builder.Configuration);
 builder.Services.AddDapper();
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
@@ -19,6 +22,7 @@ builder.Services.AddSingleton<IAuthSettings, AuthSettings>();
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddJwtAuth(builder.Configuration);
+builder.Services.AddMinioClient(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {

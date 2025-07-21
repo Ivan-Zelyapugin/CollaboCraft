@@ -10,5 +10,7 @@ namespace CollaboCraft.Services.Interfaces
         Task<List<UserDocumentDto>> GetDocumentsByUserId(int userId);
         Task<DocumentDetails> GetDocumentDetails(int id);
         Task AddUsersToDocument(AddUsersToDocumentRequest request);
+        Task RenameDocument(int documentId, string newName, int requestingUserId);
+        
     }
 }

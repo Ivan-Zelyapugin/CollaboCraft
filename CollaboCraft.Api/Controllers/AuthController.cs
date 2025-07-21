@@ -19,7 +19,6 @@ namespace CollaboCraft.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel loginModel)
         {
-            Console.WriteLine("aaaaaaa");
             return Ok(await authService.Login(loginModel));
         }
 
@@ -29,7 +28,7 @@ namespace CollaboCraft.Api.Controllers
             return Ok(await tokenService.RefreshToken(token));
         }
 
-        [Authorize]
+        /*[Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -37,6 +36,6 @@ namespace CollaboCraft.Api.Controllers
             int Id = int.Parse(Jwt.GetId(AuthHeader));
             await authService.Logout(Id);
             return Ok(new { Message = "Logged out successfully" });
-        }
+        }*/
     }
 }

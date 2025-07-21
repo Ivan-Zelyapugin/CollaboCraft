@@ -15,6 +15,17 @@ namespace CollaboCraft.Services
     {
         public async Task<AuthResponse> Register(RegisterModel registerModel)
         {
+            if (string.IsNullOrWhiteSpace(registerModel.Email))
+                throw new InvalidInputException("Email обязателен.");
+            if (string.IsNullOrWhiteSpace(registerModel.Username))
+                throw new InvalidInputException("Имя пользователя обязательно.");
+            if (string.IsNullOrWhiteSpace(registerModel.Password))
+                throw new InvalidInputException("Пароль обязателен.");
+            if (string.IsNullOrWhiteSpace(registerModel.Name))
+                throw new InvalidInputException("Имя обязательно.");
+            if (string.IsNullOrWhiteSpace(registerModel.Surname))
+                throw new InvalidInputException("Фамилия обязательна.");
+
             if (await userRepository.IsUserExistsByUsername(registerModel.Username))
             {
                 throw new UsernameAlreadyTakenException(registerModel.Username);
@@ -50,6 +61,11 @@ namespace CollaboCraft.Services
 
         public async Task<AuthResponse> Login(LoginModel loginModel)
         {
+            if (string.IsNullOrWhiteSpace(loginModel.Login))
+                throw new InvalidInputException("Логин обязателен.");
+            if (string.IsNullOrWhiteSpace(loginModel.Password))
+                throw new InvalidInputException("Пароль обязателен.");
+
             var user = await userRepository.GetUser(loginModel.Login, Hash.GetHash(loginModel.Password));
 
             if (user == null)
@@ -57,13 +73,16 @@ namespace CollaboCraft.Services
                 throw new BadCredentialsException();
             }
 
+            var refreshToken = tokenService.CreateToken(new List<Claim>());
+            await userRepository.UpdateRefreshToken(user.Id, refreshToken, DateTime.UtcNow.AddHours(authSettings.TokenExpiresAfterHours));
+
             var claims = Jwt.GetClaims(user.Id, user.Role, user.Email, user.Username);
             var accessToken = tokenService.CreateToken(claims, 24);
 
             return new AuthResponse
             {
                 AccessToken = accessToken,
-                RefreshToken = user.RefreshToken
+                RefreshToken = refreshToken
             };
         }
 

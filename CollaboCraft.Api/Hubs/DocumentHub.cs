@@ -1,5 +1,9 @@
-﻿using CollaboCraft.Models.Block;
+﻿using CollaboCraft.DataAccess.Repositories;
+using CollaboCraft.DataAccess.Repositories.Interfaces;
+using CollaboCraft.Models.Block;
+using CollaboCraft.Models.BlockImage;
 using CollaboCraft.Models.Document;
+using CollaboCraft.Services;
 using CollaboCraft.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 
@@ -9,6 +13,9 @@ namespace CollaboCraft.Api.Hubs
         (IConnectionTracker connectionTracker, 
         IDocumentService documentService, 
         IBlockService messageService, 
+        IBlockRepository blockRepository,
+        IBlockImageRepository blockImageRepository,
+        IBlockImageService blockImageService,
         IDocumentParticipantService documentParticipantService,
         IUserService userService
         ) : BaseHub
@@ -142,6 +149,118 @@ namespace CollaboCraft.Api.Hubs
             }
         }
 
+        public async Task RenameDocument(int documentId, string newName)
+        {
+            try
+            {
+                await documentService.RenameDocument(documentId, newName, Id);
+
+                await Clients.Group($"Document{documentId}").SendAsync("DocumentRenamed", documentId, newName);
+            }
+            catch (Exception e)
+            {
+                throw new HubException(e.Message);
+            }
+        }
+
+        public async Task ChangeUserRoleInDocument(int documentId, int userId, string newRole)
+        {
+            try
+            {
+                await documentParticipantService.ChangeUserRoleInDocument(documentId, userId, newRole, Id);
+                await Clients.Group($"Document{documentId}").SendAsync("UserRoleChanged", documentId, userId, newRole);
+            }
+            catch (Exception e)
+            {
+                throw new HubException(e.Message);
+            }
+        }
+
+        public async Task RemoveUserFromDocument(int documentId, int userId)
+        {
+            try
+            {
+                Console.WriteLine($"Remove for userId: {userId}, documentId: {documentId}");
+                await documentParticipantService.RemoveUserFromDocument(documentId, userId, Id);
+
+                var connectionIds = connectionTracker.SelectConnectionIds(new List<int> { userId });
+                await Task.WhenAll(connectionIds.Select(connectionId => Groups.RemoveFromGroupAsync(connectionId, $"Document{documentId}")));
+
+                Console.WriteLine("Remove successfully");
+                await Clients.Group($"Document{documentId}").SendAsync("UserRemoved", documentId, userId);
+            }
+            catch (Exception e)
+            {
+                throw new HubException(e.Message);
+            }
+        }
+
+        public async Task<BlockImage> SendBlockImage(SendBlockImageRequest request, FileUpload file)
+        {
+            Console.WriteLine("➡️ Вызван метод SendBlockImage (Hub)");
+            try
+            {
+                request.UserId = Id;
+                Console.WriteLine($"🔹 UserId: {request.UserId}, BlockId: {request.BlockId}");
+
+                var block = await blockRepository.GetBlockById(request.BlockId);
+                if (block == null)
+                {
+                    Console.WriteLine("❌ Блок не найден");
+                    throw new Exception($"Блок с ID {request.BlockId} не найден");
+                }
+
+                int documentId = block.DocumentId;
+                Console.WriteLine($"🔹 DocumentId: {documentId}");
+
+                var blockImage = await blockImageService.SendBlockImage(request, file);
+
+                Console.WriteLine($"✅ Изображение успешно обработано, Id: {blockImage.Id}, Url: {blockImage.Url}");
+
+                await Clients.Group($"Document{documentId}")
+                             .SendAsync("ReceiveBlockImage", blockImage);
+                Console.WriteLine("📤 Отправлено клиентам в группе");
+                return blockImage;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"❌ Ошибка в SendBlockImage (Hub): {e.GetType().Name} - {e.Message}");
+                Console.WriteLine($"📄 StackTrace: {e.StackTrace}");
+                throw new HubException("Ошибка при обработке изображения: " + e.Message);
+            }
+        }
+
+
+        public async Task DeleteBlockImage(int imageId)
+        {
+            var image = await blockImageRepository.GetImageById(imageId);
+            var block = await blockRepository.GetBlockById(image.BlockId);
+            int documentId = block.DocumentId;
+            try
+            {
+                await blockImageService.DeleteBlockImage(imageId, Id);
+                await Clients.Group($"Document{documentId}")
+                             .SendAsync("BlockImageDeleted", imageId);
+            }
+            catch (Exception e)
+            {
+                throw new HubException(e.Message);
+            }
+        }
+
+        public async Task<List<BlockImage>> GetBlockImagesByBlock(int blockId)
+        {
+            try
+            {
+                var blockImages = await blockImageService.GetBlockImagesByBlock(Id, blockId);
+                return blockImages;
+            }
+            catch (Exception e)
+            {
+                throw new HubException(e.Message);
+            }
+        }
+
         public override async Task OnConnectedAsync()
         {
             connectionTracker.TrackConnection(Context.ConnectionId, Id);
@@ -159,6 +278,7 @@ namespace CollaboCraft.Api.Hubs
 
             await base.OnDisconnectedAsync(exception);
         }
+    
 
         private async Task<List<int>> ResolveUserIdsAsync(List<string> usernames)
         {

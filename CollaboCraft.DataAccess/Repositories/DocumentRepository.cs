@@ -35,6 +35,12 @@ namespace CollaboCraft.DataAccess.Repositories
             return await dapperContext.ListOrEmpty<DbDocument>(new QueryObject(Sql.GetDocumentsByUserId, new { userId }));
         }
 
+        public async Task UpdateDocumentName(int documentId, string newName, ITransaction transaction = null)
+        {
+            var parameters = new { documentId, name = newName };
+            await dapperContext.Command(new QueryObject(Sql.UpdateDocumentName, parameters), transaction);
+        }
+
         public async Task<DocumentDetails> GetDocumentDetails(int id)
         {
             var document = await dapperContext.FirstOrDefault<DbDocument>(new QueryObject(Sql.GetDocumentById, new { id }));
@@ -55,6 +61,8 @@ namespace CollaboCraft.DataAccess.Repositories
                 Name = document.Name,
                 Creator = creatorTask.Result,
                 Participants = participantsTask.Result
+                    .Where(p => p.UserId != document.CreatorId)
+                    .ToList()
             };
         }
     }

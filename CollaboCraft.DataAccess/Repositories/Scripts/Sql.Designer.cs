@@ -61,7 +61,7 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на ﻿update users
+        ///   Ищет локализованную строку, похожую на update users
         ///set password_hash = @passwordHash
         ///where id = @id;.
         /// </summary>
@@ -79,6 +79,17 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         internal static string CreateBlock {
             get {
                 return ResourceManager.GetString("CreateBlock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на INSERT INTO block_images (block_id, url, uploaded_on, user_id)
+        ///VALUES (@BlockId, @Url, @UploadedOn, @UserId)
+        ///RETURNING id;.
+        /// </summary>
+        internal static string CreateBlockImage {
+            get {
+                return ResourceManager.GetString("CreateBlockImage", resourceCulture);
             }
         }
         
@@ -132,6 +143,26 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         internal static string DeleteDocument {
             get {
                 return ResourceManager.GetString("DeleteDocument", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на DELETE FROM document_participants
+        ///WHERE user_id = @userId AND document_id = @documentId;.
+        /// </summary>
+        internal static string DeleteDocumentParticipant {
+            get {
+                return ResourceManager.GetString("DeleteDocumentParticipant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на delete from block_images
+        ///where id = @Id;.
+        /// </summary>
+        internal static string DeleteImage {
+            get {
+                return ResourceManager.GetString("DeleteImage", resourceCulture);
             }
         }
         
@@ -222,7 +253,7 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         ///       u.username as Username,
         ///       u.name     as Name,
         ///       u.surname  as Surname,
-        ///       cp.chat_id as DocumentId,
+        ///       cp.document_id as DocumentId,
         ///       cp.role    as Role
         ///from document_participants cp
         ///         join users u on cp.user_id = u.id
@@ -289,6 +320,37 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         internal static string GetDocumentsByUserId {
             get {
                 return ResourceManager.GetString("GetDocumentsByUserId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на select id          as Id,
+        ///       block_id    as BlockId,
+        ///       url         as Url,
+        ///       uploaded_on as UploadedOn,
+        ///       user_id     as UserId
+        ///from block_images
+        ///where id = @Id;.
+        /// </summary>
+        internal static string GetImageById {
+            get {
+                return ResourceManager.GetString("GetImageById", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на select id          as Id,
+        ///       block_id    as BlockId,
+        ///       url         as Url,
+        ///       uploaded_on as UploadedOn,
+        ///       user_id     as UserId
+        ///from block_images
+        ///where block_id = @BlockId
+        ///order by uploaded_on;.
+        /// </summary>
+        internal static string GetImagesByBlockId {
+            get {
+                return ResourceManager.GetString("GetImagesByBlockId", resourceCulture);
             }
         }
         
@@ -428,6 +490,17 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         
         /// <summary>
         ///   Ищет локализованную строку, похожую на select exists(select id
+        ///              from block_images
+        ///              where id = @Id);.
+        /// </summary>
+        internal static string IsImageExists {
+            get {
+                return ResourceManager.GetString("IsImageExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на select exists(select id
         ///              from users
         ///              where email = @email);.
         /// </summary>
@@ -460,6 +533,18 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на UPDATE documents
+        ///SET name = @name
+        ///WHERE id = @documentId
+        ///.
+        /// </summary>
+        internal static string UpdateDocumentName {
+            get {
+                return ResourceManager.GetString("UpdateDocumentName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на update users
         ///set refresh_token               = @refreshToken,
         ///    refresh_token_expired_after = @refreshTokenExpiredAfter
@@ -482,6 +567,17 @@ namespace CollaboCraft.DataAccess.Repositories.Scripts {
         internal static string UpdateUser {
             get {
                 return ResourceManager.GetString("UpdateUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на UPDATE document_participants
+        ///SET role = @role
+        ///WHERE user_id = @userId AND document_id = @documentId;.
+        /// </summary>
+        internal static string UpdateUserRoleInDocument {
+            get {
+                return ResourceManager.GetString("UpdateUserRoleInDocument", resourceCulture);
             }
         }
     }

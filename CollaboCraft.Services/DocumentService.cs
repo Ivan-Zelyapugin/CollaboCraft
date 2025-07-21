@@ -172,5 +172,36 @@ namespace CollaboCraft.Services
 
             await documentParticipantRepository.CreateDocumentParticipants(participants);
         }
+
+        public async Task RenameDocument(int documentId, string newName, int requestingUserId)
+        {
+            if (!await documentRepository.IsDocumentExists(documentId))
+                throw new DocumentNotFoundException(documentId);
+
+            var participantExists = await documentParticipantRepository.IsDocumentParticipantExists(requestingUserId, documentId);
+            if (!participantExists)
+                throw new DocumentParticipantNotFoundException(requestingUserId, documentId);
+
+            var roleInt = await documentParticipantRepository.GetUserRoleInDocument(requestingUserId, documentId);
+            if (roleInt is null)
+                throw new DocumentParticipantNotFoundException(requestingUserId, documentId);
+
+            var role = (DocumentRole)roleInt;
+
+            if (role != DocumentRole.Creator && role != DocumentRole.Editor)
+                throw new PermissionDeniedException("Смена имени документа разрешена только создателю или редактору.");
+
+            using var transaction = documentRepository.BeginTransaction();
+            try
+            {
+                await documentRepository.UpdateDocumentName(documentId, newName, transaction);
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }    
     }
 }

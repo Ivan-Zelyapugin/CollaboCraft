@@ -40,5 +40,20 @@ namespace CollaboCraft.DataAccess.Repositories
                 new QueryObject(Sql.GetUserRoleInDocument, new { userId, documentId })
             );
         }
+
+        public async Task UpdateUserRoleInDocument(int documentId, int userId, int role, ITransaction transaction = null)
+        {
+            var parameters = new { userId, documentId, role };
+            await dapperContext.Command(new QueryObject(Sql.UpdateUserRoleInDocument, parameters), transaction);
+        }
+
+        public async Task DeleteDocumentParticipant(int documentId, int userId, ITransaction transaction = null)
+        {
+            Console.WriteLine($"Remove for userId: {userId}, documentId: {documentId}");
+            var parameters = new { userId, documentId };
+            await dapperContext.Command(new QueryObject(Sql.DeleteDocumentParticipant, parameters), transaction);
+            Console.WriteLine("Role changed successfully");
+        }
+
     }
 }

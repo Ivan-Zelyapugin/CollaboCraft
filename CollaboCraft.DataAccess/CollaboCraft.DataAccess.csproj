@@ -7,11 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Migrations\Resources\006_Create_BlockImage.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Migrations\Resources\001_Create_users.sql" />
     <EmbeddedResource Include="Migrations\Resources\002_Create_contacts.sql" />
     <EmbeddedResource Include="Migrations\Resources\003_Create_documents.sql" />
     <EmbeddedResource Include="Migrations\Resources\004_Create_document_participants.sql" />
     <EmbeddedResource Include="Migrations\Resources\005_Crete_blocks.sql" />
+    <EmbeddedResource Include="Migrations\Resources\006_Create_BlockImage.sql" />
   </ItemGroup>
 
   <ItemGroup>

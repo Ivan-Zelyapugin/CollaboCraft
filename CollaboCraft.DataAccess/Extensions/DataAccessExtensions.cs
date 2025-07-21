@@ -46,6 +46,7 @@ namespace CollaboCraft.DataAccess.Extensions
                 .AddScoped<IDocumentRepository, DocumentRepository>()
                 .AddScoped<IDocumentParticipantRepository, DocumentParticipantRepository>()
                 .AddScoped<IBlockRepository, BlockRepository>()
+                .AddScoped<IBlockImageRepository, BlockImageRepository>()
                 .AddScoped<IContactRepository, ContactRepository>();
         }
     }

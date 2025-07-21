@@ -12,5 +12,6 @@ namespace CollaboCraft.DataAccess.Repositories.Interfaces
         Task<bool> IsDocumentExists(int id);
         Task<List<DbDocument>> GetDocumentsByUserId(int userId);
         Task<DocumentDetails> GetDocumentDetails(int id);
+        Task UpdateDocumentName(int documentId, string newName, ITransaction transaction = null);
     }
 }

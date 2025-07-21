@@ -14,6 +14,7 @@ namespace CollaboCraft.Services.Extensions
                 .AddSingleton<IConnectionTracker, ConnectionTracker>()
                 .AddScoped<IDocumentService, DocumentService>()
                 .AddScoped<IBlockService, BlockService>()
+                .AddScoped<IBlockImageService, BlockImageService>()
                 .AddScoped<IDocumentParticipantService, DocumentParticipantService>()
                 .AddScoped<IContactService, ContactService>();
         }

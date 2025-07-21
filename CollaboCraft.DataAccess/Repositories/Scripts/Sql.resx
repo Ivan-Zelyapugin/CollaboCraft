@@ -124,6 +124,9 @@
   <data name="CreateBlock" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Block\CreateBlock.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="CreateBlockImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+      <value>BlockImage\CreateBlockImage.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="CreateContract" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Contract\CreateContract.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -138,6 +141,12 @@
   </data>
   <data name="DeleteDocument" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Document\DeleteDocument.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="DeleteDocumentParticipant" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>DocumentParticipant\DeleteDocumentParticipant.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="DeleteImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+      <value>BlockImage\DeleteImage.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="DeleteUser" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>User\DeleteUser.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -172,6 +181,12 @@
   <data name="GetDocumentsByUserId" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Document\GetDocumentsByUserId.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="GetImageById" type="System.Resources.ResXFileRef, System.Windows.Forms">
+      <value>BlockImage\GetImageById.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="GetImagesByBlockId" type="System.Resources.ResXFileRef, System.Windows.Forms">
+      <value>BlockImage\GetImagesByBlockId.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="GetUserById" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>User\GetUserById.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -199,6 +214,9 @@
   <data name="IsDocumentParticipantExists" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>DocumentParticipant\IsDocumentParticipantExists.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="IsImageExists" type="System.Resources.ResXFileRef, System.Windows.Forms">
+      <value>BlockImage\IsImageExists.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="IsUserExistsByEmail" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>User\IsUserExistsByEmail.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -208,10 +226,16 @@
   <data name="IsUserExistsByUsername" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>User\IsUserExistsByUsername.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="UpdateDocumentName" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Document\UpdateDocumentName.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="UpdateRefreshToken" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>User\UpdateRefreshToken.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="UpdateUser" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>User\UpdateUser.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="UpdateUserRoleInDocument" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>DocumentParticipant\UpdateUserRoleInDocument.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>
