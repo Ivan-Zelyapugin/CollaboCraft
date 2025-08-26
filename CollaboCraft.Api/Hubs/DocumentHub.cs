@@ -233,6 +233,7 @@ namespace CollaboCraft.Api.Hubs
 
         public async Task DeleteBlockImage(int imageId)
         {
+            Console.WriteLine("хаб удаления");
             var image = await blockImageRepository.GetImageById(imageId);
             var block = await blockRepository.GetBlockById(image.BlockId);
             int documentId = block.DocumentId;

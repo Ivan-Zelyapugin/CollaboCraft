@@ -99,6 +99,7 @@ namespace CollaboCraft.Services
 
         public async Task DeleteBlockImage(int id, int userId)
         {
+            Console.WriteLine("сервис удаления");
             var dbBlockImage = await blockImageRepository.GetImageById(id);
             if (dbBlockImage == null)
                 throw new BlockImageNotFoundException(id);
@@ -112,10 +113,13 @@ namespace CollaboCraft.Services
 
             // Удаление из минио
             var firstSlashIndex = dbBlockImage.Url.IndexOf('/');
+            Console.WriteLine("firstSlashIndex - " + firstSlashIndex);
             if (firstSlashIndex > 0 && firstSlashIndex < dbBlockImage.Url.Length - 1)
             {
                 string bucket = dbBlockImage.Url[..firstSlashIndex];
+                Console.WriteLine("bucket - " + bucket);
                 string objectName = dbBlockImage.Url[(firstSlashIndex + 1)..];
+                Console.WriteLine("objectName - " + objectName);
 
                 await minioClient.RemoveObjectAsync(
                     new RemoveObjectArgs()
