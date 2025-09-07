@@ -5,6 +5,7 @@
         public string Issuer { get; }
         public string Audience { get; }
         public string Key { get; }
-        public int TokenExpiresAfterHours { get; }
+        int AccessTokenExpiresInMinutes { get; }
+        int RefreshTokenExpiresInDays { get; }
     }
 }

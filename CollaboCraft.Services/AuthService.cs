@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using CollaboCraft.Common;
+﻿using CollaboCraft.Common;
 using CollaboCraft.DataAccess.Models;
 using CollaboCraft.DataAccess.Repositories.Interfaces;
 using CollaboCraft.Models.Auth;
@@ -7,7 +6,7 @@ using CollaboCraft.Models.Auth.Interfaces;
 using CollaboCraft.Models.User;
 using CollaboCraft.Services.Exceptions;
 using CollaboCraft.Services.Interfaces;
-
+using System.Security.Claims;
 
 namespace CollaboCraft.Services
 {
@@ -15,29 +14,23 @@ namespace CollaboCraft.Services
     {
         public async Task<AuthResponse> Register(RegisterModel registerModel)
         {
-            if (string.IsNullOrWhiteSpace(registerModel.Email))
-                throw new InvalidInputException("Email обязателен.");
-            if (string.IsNullOrWhiteSpace(registerModel.Username))
-                throw new InvalidInputException("Имя пользователя обязательно.");
-            if (string.IsNullOrWhiteSpace(registerModel.Password))
-                throw new InvalidInputException("Пароль обязателен.");
-            if (string.IsNullOrWhiteSpace(registerModel.Name))
-                throw new InvalidInputException("Имя обязательно.");
-            if (string.IsNullOrWhiteSpace(registerModel.Surname))
-                throw new InvalidInputException("Фамилия обязательна.");
+            if (string.IsNullOrWhiteSpace(registerModel.Email) ||
+                string.IsNullOrWhiteSpace(registerModel.Username) ||
+                string.IsNullOrWhiteSpace(registerModel.Password) ||
+                string.IsNullOrWhiteSpace(registerModel.Name) ||
+                string.IsNullOrWhiteSpace(registerModel.Surname))
+            {
+                throw new InvalidInputException("Все поля обязательны.");
+            }
 
             if (await userRepository.IsUserExistsByUsername(registerModel.Username))
-            {
                 throw new UsernameAlreadyTakenException(registerModel.Username);
-            }
 
             if (await userRepository.IsUserExistsByEmail(registerModel.Email))
-            {
                 throw new EmailAlreadyTakenException(registerModel.Email);
-            }
 
-            var refreshToken = tokenService.CreateToken(new List<Claim>());
-            var id = await userRepository.CreateUser(new DbUser
+            var refreshToken = TokenService.GenerateRefreshToken();
+            var userId = await userRepository.CreateUser(new DbUser
             {
                 Role = (int)Role.User,
                 Username = registerModel.Username,
@@ -46,11 +39,11 @@ namespace CollaboCraft.Services
                 Surname = registerModel.Surname,
                 PasswordHash = Hash.GetHash(registerModel.Password),
                 RefreshToken = refreshToken,
-                RefreshTokenExpiredAfter = DateTime.UtcNow.AddHours(authSettings.TokenExpiresAfterHours)
+                RefreshTokenExpiredAfter = DateTime.UtcNow.AddDays(authSettings.RefreshTokenExpiresInDays)
             });
 
-            var claims = Jwt.GetClaims(id, (int)Role.User, registerModel.Email, registerModel.Username);
-            var accessToken = tokenService.CreateToken(claims, 24);
+            var claims = Jwt.GetClaims(userId, (int)Role.User, registerModel.Email, registerModel.Username);
+            var accessToken = tokenService.CreateAccessToken(claims);
 
             return new AuthResponse
             {
@@ -61,23 +54,22 @@ namespace CollaboCraft.Services
 
         public async Task<AuthResponse> Login(LoginModel loginModel)
         {
-            if (string.IsNullOrWhiteSpace(loginModel.Login))
-                throw new InvalidInputException("Логин обязателен.");
-            if (string.IsNullOrWhiteSpace(loginModel.Password))
-                throw new InvalidInputException("Пароль обязателен.");
+            if (string.IsNullOrWhiteSpace(loginModel.Login) || string.IsNullOrWhiteSpace(loginModel.Password))
+                throw new InvalidInputException("Логин и пароль обязательны.");
 
             var user = await userRepository.GetUser(loginModel.Login, Hash.GetHash(loginModel.Password));
-
             if (user == null)
-            {
                 throw new BadCredentialsException();
-            }
 
-            var refreshToken = tokenService.CreateToken(new List<Claim>());
-            await userRepository.UpdateRefreshToken(user.Id, refreshToken, DateTime.UtcNow.AddHours(authSettings.TokenExpiresAfterHours));
+            var refreshToken = TokenService.GenerateRefreshToken();
+            await userRepository.UpdateRefreshToken(
+                user.Id,
+                refreshToken,
+                DateTime.UtcNow.AddDays(authSettings.RefreshTokenExpiresInDays)
+            );
 
             var claims = Jwt.GetClaims(user.Id, user.Role, user.Email, user.Username);
-            var accessToken = tokenService.CreateToken(claims, 24);
+            var accessToken = tokenService.CreateAccessToken(claims);
 
             return new AuthResponse
             {
@@ -89,12 +81,9 @@ namespace CollaboCraft.Services
         public async Task Logout(int userId)
         {
             if (!await userRepository.IsUserExistsById(userId))
-            {
                 throw new UserNotFoundException(userId);
-            }
 
-            // Инвалидируем refresh token
-            await userRepository.UpdateRefreshToken(userId, null, null);
+            await userRepository.UpdateRefreshToken(userId, null, null); // инвалидируем refresh
         }
     }
 }

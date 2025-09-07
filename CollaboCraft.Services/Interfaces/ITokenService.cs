@@ -5,7 +5,7 @@ namespace CollaboCraft.Services.Interfaces
 {
     public interface ITokenService
     {
-        string CreateToken(IEnumerable<Claim> claims, int tokenExpiresAfterHours = 0);
+        string CreateAccessToken(IEnumerable<Claim> claims);
         Task<AuthResponse> RefreshToken(string refreshToken);
     }
 }

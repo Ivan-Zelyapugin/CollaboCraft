@@ -8,6 +8,7 @@ namespace CollaboCraft.Models.Auth
         public string Issuer => configuration.GetSection("Auth")["Issuer"];
         public string Audience => configuration.GetSection("Auth")["Audience"];
         public string Key => configuration.GetSection("Auth")["Key"];
-        public int TokenExpiresAfterHours => int.Parse(configuration.GetSection("Auth")["TokenExpiresAfterHours"]);
+        public int AccessTokenExpiresInMinutes => int.Parse(configuration.GetSection("Auth")["AccessTokenExpiresInMinutes"]);
+        public int RefreshTokenExpiresInDays => int.Parse(configuration.GetSection("Auth")["RefreshTokenExpiresInDays"]);
     }
 }

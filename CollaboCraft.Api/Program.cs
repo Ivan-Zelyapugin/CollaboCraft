@@ -8,6 +8,11 @@ using CollaboCraft.Services.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(8080); // важно, иначе слушает только localhost
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithAuth();
 builder.Services.AddControllers();
@@ -45,5 +50,6 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<DocumentHub>("/documenthub");
+
 
 app.Run();

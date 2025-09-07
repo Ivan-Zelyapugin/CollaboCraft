@@ -1,8 +1,8 @@
 version: '3.8'
 
 networks:
-    app-network:
-        driver: bridge
+  app-network:
+    driver: bridge
 
 services:
   db:
@@ -30,7 +30,6 @@ services:
       - minio
     ports:
       - "8080:8080"
-      - "443:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     networks:
@@ -51,6 +50,19 @@ services:
     networks:
       - app-network
 
+  proxy:
+    image: nginx:alpine
+    container_name: collabocraft-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ../CollaboCraftFront/build:/usr/share/nginx/html:ro
+      - ../CollaboCraftFront/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
 volumes:
   postgres-data:
-  minio_data:  
+  minio_data:

@@ -27,15 +27,5 @@ namespace CollaboCraft.Api.Controllers
         {
             return Ok(await tokenService.RefreshToken(token));
         }
-
-        /*[Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            string AuthHeader = HttpContext.Request.Headers.Authorization.ToString();
-            int Id = int.Parse(Jwt.GetId(AuthHeader));
-            await authService.Logout(Id);
-            return Ok(new { Message = "Logged out successfully" });
-        }*/
     }
 }
